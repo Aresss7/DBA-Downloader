@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react'
-import { Download, Monitor, Music, ChevronDown, Check, RefreshCw, Folder, Link as LinkIcon, Scissors, FolderOpen, X, Shield, Info, Crown, ExternalLink } from 'lucide-react'
+import { Download, Monitor, Music, ChevronDown, Check, RefreshCw, Folder, Link as LinkIcon, Scissors, FolderOpen, X, Shield, Info, Crown } from 'lucide-react'
 import TimeInput from './components/TimeInput'
 
 declare global {
@@ -552,8 +552,8 @@ function App() {
                                     <Music style={{ width: 18, height: 18, color: '#60a5fa' }} />
                                 </div>
                                 <div>
-                                    <div className="text-sm font-black text-white">Выберите язык аудио</div>
-                                    <div className="text-[10px] font-bold text-slate-500">Обнаружено {audioLangs.length} дорожек</div>
+                                    <div className="text-sm font-black text-white">Select Audio Language</div>
+                                    <div className="text-[10px] font-bold text-slate-500">{audioLangs.length} tracks detected</div>
                                 </div>
                             </div>
                             <button
@@ -570,7 +570,7 @@ function App() {
                         </div>
 
                         <p className="text-[11px] text-slate-500" style={{ marginBottom: 20 }}>
-                            Это видео имеет несколько звуковых дорожек. Выберите нужный язык:
+                            This video has multiple audio tracks. Select your preferred language:
                         </p>
 
                         <div className="flex flex-wrap gap-2" style={{ maxHeight: 280, overflowY: 'auto', marginBottom: 20 }}>
@@ -606,7 +606,7 @@ function App() {
                             onMouseEnter={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.06)'; }}
                             onMouseLeave={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.03)'; }}
                         >
-                            Пропустить (скачать по умолчанию)
+                            Skip (download default)
                         </button>
                     </div>
                 </div>
@@ -667,8 +667,8 @@ function App() {
                         {/* Features */}
                         <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginBottom: 24 }}>
                             {[
-                                { icon: '🖥️', title: '1440p QHD Downloads', desc: 'Download videos in Quad HD quality' },
                                 { icon: '🎬', title: '4K Ultra HD Downloads', desc: 'Maximum resolution for crystal-clear video' },
+                                { icon: '🖥️', title: '1440p QHD Downloads', desc: 'Download videos in Quad HD quality' },
                                 { icon: '⚡', title: 'Priority Updates', desc: 'Get early access to new features and fixes' },
                                 { icon: '❤️', title: 'Support the Developer', desc: 'Help keep the project alive and growing' },
                             ].map((f, i) => (
@@ -687,43 +687,24 @@ function App() {
                             ))}
                         </div>
 
-                        {/* Purchase buttons */}
-                        <div style={{ display: 'flex', gap: 10 }}>
-                            <button
-                                onClick={() => window.electronAPI.openExternal('https://itch.io')}
-                                style={{
-                                    flex: 1, height: 44, borderRadius: 12,
-                                    background: 'linear-gradient(135deg, rgba(245,158,11,0.15) 0%, rgba(234,179,8,0.08) 100%)',
-                                    border: '1px solid rgba(245,158,11,0.25)',
-                                    color: '#f59e0b', cursor: 'pointer',
-                                    fontSize: 11, fontWeight: 800, letterSpacing: '0.05em',
-                                    display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
-                                    transition: 'all 0.2s',
-                                }}
-                                onMouseEnter={e => { e.currentTarget.style.background = 'linear-gradient(135deg, rgba(245,158,11,0.25) 0%, rgba(234,179,8,0.15) 100%)'; }}
-                                onMouseLeave={e => { e.currentTarget.style.background = 'linear-gradient(135deg, rgba(245,158,11,0.15) 0%, rgba(234,179,8,0.08) 100%)'; }}
-                            >
-                                <ExternalLink style={{ width: 13, height: 13 }} />
-                                Buy on Itch.io
-                            </button>
-                            <button
-                                onClick={() => window.electronAPI.openExternal('https://gumroad.com')}
-                                style={{
-                                    flex: 1, height: 44, borderRadius: 12,
-                                    background: 'linear-gradient(135deg, rgba(236,72,153,0.12) 0%, rgba(219,39,119,0.06) 100%)',
-                                    border: '1px solid rgba(236,72,153,0.2)',
-                                    color: '#ec4899', cursor: 'pointer',
-                                    fontSize: 11, fontWeight: 800, letterSpacing: '0.05em',
-                                    display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
-                                    transition: 'all 0.2s',
-                                }}
-                                onMouseEnter={e => { e.currentTarget.style.background = 'linear-gradient(135deg, rgba(236,72,153,0.2) 0%, rgba(219,39,119,0.1) 100%)'; }}
-                                onMouseLeave={e => { e.currentTarget.style.background = 'linear-gradient(135deg, rgba(236,72,153,0.12) 0%, rgba(219,39,119,0.06) 100%)'; }}
-                            >
-                                <ExternalLink style={{ width: 13, height: 13 }} />
-                                Buy on Gumroad
-                            </button>
-                        </div>
+                        {/* Purchase button */}
+                        <button
+                            onClick={() => window.electronAPI.openExternal('https://boosty.to/ares_s7')}
+                            style={{
+                                width: '100%', height: 48, borderRadius: 12,
+                                background: 'linear-gradient(135deg, rgba(245,158,11,0.2) 0%, rgba(234,179,8,0.1) 100%)',
+                                border: '1px solid rgba(245,158,11,0.3)',
+                                color: '#f59e0b', cursor: 'pointer',
+                                fontSize: 13, fontWeight: 800, letterSpacing: '0.05em',
+                                display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
+                                transition: 'all 0.2s',
+                            }}
+                            onMouseEnter={e => { e.currentTarget.style.background = 'linear-gradient(135deg, rgba(245,158,11,0.3) 0%, rgba(234,179,8,0.18) 100%)'; e.currentTarget.style.borderColor = 'rgba(245,158,11,0.45)'; }}
+                            onMouseLeave={e => { e.currentTarget.style.background = 'linear-gradient(135deg, rgba(245,158,11,0.2) 0%, rgba(234,179,8,0.1) 100%)'; e.currentTarget.style.borderColor = 'rgba(245,158,11,0.3)'; }}
+                        >
+                            <Crown style={{ width: 15, height: 15 }} />
+                            Unlock Premium on Boosty
+                        </button>
                     </div>
                 </div>
             )}
@@ -753,22 +734,22 @@ function App() {
                                 <Shield style={{ width: 20, height: 20, color: '#60a5fa' }} />
                             </div>
                             <div>
-                                <div className="text-sm font-black text-white">Лицензионное соглашение</div>
-                                <div className="text-[10px] font-bold text-slate-500">и отказ от ответственности</div>
+                                <div className="text-sm font-black text-white">License Agreement</div>
+                                <div className="text-[10px] font-bold text-slate-500">and Disclaimer</div>
                             </div>
                         </div>
 
                         <div className="text-xs leading-relaxed text-slate-400" style={{ marginBottom: 28, lineHeight: 1.8 }}>
-                            <p style={{ marginBottom: 16, color: '#94a3b8' }}>Вы собираетесь использовать программу <strong style={{ color: '#fff' }}>DBA Downloader</strong>. Пожалуйста, подтвердите следующее:</p>
+                            <p style={{ marginBottom: 16, color: '#94a3b8' }}>You are about to use <strong style={{ color: '#fff' }}>DBA Downloader</strong>. Please confirm the following:</p>
                             <ul style={{ paddingLeft: 16, display: 'flex', flexDirection: 'column', gap: 12 }}>
-                                <li>Вы обязуетесь использовать данное ПО исключительно в ознакомительных целях или для скачивания контента, на который у вас есть законные права.</li>
-                                <li>Вы осознаёте, что скачивание материалов, защищённых авторским правом (фильмы, музыка, чужой коммерческий контент) без разрешения автора, может нарушать законы вашей страны и правила платформы.</li>
-                                <li>Разработчик <strong style={{ color: '#94a3b8' }}>DBA Downloader</strong> не несёт ответственности за любые действия пользователя, совершённые с помощью данного инструмента.</li>
+                                <li>You agree to use this software solely for educational purposes or to download content to which you hold legal rights.</li>
+                                <li>You understand that downloading copyrighted material (movies, music, commercial content) without the author's permission may violate the laws of your country and platform policies.</li>
+                                <li>The developer of <strong style={{ color: '#94a3b8' }}>DBA Downloader</strong> is not responsible for any actions taken by the user with this tool.</li>
                             </ul>
                         </div>
 
                         <p className="text-[10px] text-slate-600 font-semibold" style={{ marginBottom: 20 }}>
-                            Нажимая «Принять», вы подтверждаете своё согласие с данными условиями.
+                            By clicking "Accept", you confirm your agreement with these terms.
                         </p>
 
                         <div className="flex gap-3">
@@ -785,7 +766,7 @@ function App() {
                                 onMouseEnter={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.06)'; }}
                                 onMouseLeave={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.03)'; }}
                             >
-                                ОТКЛОНИТЬ
+                                DECLINE
                             </button>
                             <button
                                 onClick={() => { window.electronAPI.setSetting('disclaimerAccepted', true); setDisclaimerAccepted(true); }}
@@ -796,7 +777,7 @@ function App() {
                                     cursor: 'pointer',
                                 }}
                             >
-                                ПРИНЯТЬ
+                                ACCEPT
                             </button>
                         </div>
                     </div>

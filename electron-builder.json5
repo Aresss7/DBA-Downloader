@@ -17,6 +17,12 @@
       "to": "LICENSE-yt-dlp.txt"
     }
   ],
+  "extraFiles": [
+    {
+      "from": "LICENSE",
+      "to": "LICENSE.txt"
+    }
+  ],
   "win": {
     "icon": "public/icon.ico",
     "target": [
