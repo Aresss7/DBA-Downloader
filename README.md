@@ -18,6 +18,16 @@ Download the latest `.exe` from [Releases](../../releases), run the installer, a
 > ⚠️ Windows SmartScreen may show a warning since the app isn't code-signed.  
 > Click **"More info"** → **"Run anyway"** — this is safe.
 
+## ⚖️ Disclaimer
+
+DBA Downloader is intended for educational purposes and for downloading content you have the legal right to access.
+
+- **Do not** use this tool to download copyrighted material (movies, music, commercial content) without the author's permission.
+- Downloading protected content may violate the laws of your country and platform terms of service.
+- **The developer is not responsible** for any actions taken by users with this tool.
+
+By using DBA Downloader, you agree to these terms.
+
 ## 🔧 Troubleshooting
 
 If downloads don't start or fail, click the **SYNC** button in the bottom-left corner to update the download engine.
@@ -44,6 +54,10 @@ The installer will appear in `release/1.0.0/`.
 - **Vite** — Build tool
 - **yt-dlp** — Download engine
 
+## 🙏 Credits
+
+Powered by [yt-dlp](https://github.com/yt-dlp/yt-dlp), distributed under [The Unlicense](https://unlicense.org/).
+
 ## 📄 License
 
-GPL-3.0
+[MIT](LICENSE)

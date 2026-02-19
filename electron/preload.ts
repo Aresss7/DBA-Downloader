@@ -6,6 +6,10 @@ contextBridge.exposeInMainWorld('electronAPI', {
   selectFolder: () => ipcRenderer.invoke('select-folder'),
   downloadVideo: (url: string, options: any) => ipcRenderer.invoke('download-video', { url, options }),
   cancelDownload: () => ipcRenderer.invoke('cancel-download'),
+  fetchVideoInfo: (url: string) => ipcRenderer.invoke('fetch-video-info', url),
+  getSetting: (key: string) => ipcRenderer.invoke('get-setting', key),
+  setSetting: (key: string, value: any) => ipcRenderer.invoke('set-setting', key, value),
+  openExternal: (url: string) => ipcRenderer.invoke('open-external', url),
   onDownloadProgress: (callback: (progress: string) => void) => {
     ipcRenderer.on('download-progress', (_event, value: string) => callback(value))
   }

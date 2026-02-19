@@ -597,6 +597,29 @@ input:checked+.switch-track .switch-thumb {
     }
 }
 
+/* ═══ Language Pill ═══ */
+.lang-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 14px;
+    border-radius: 12px;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    cursor: pointer;
+    transition: all 0.25s ease;
+}
+
+.lang-pill:hover {
+    background: rgba(255, 255, 255, 0.06) !important;
+    transform: translateY(-1px);
+}
+
+.flex-wrap {
+    flex-wrap: wrap;
+}
+
 /* ═══ Animations ═══ */
 .animate-spin {
     animation: spin 0.8s linear infinite;

@@ -11,6 +11,12 @@
     "dist",
     "dist-electron"
   ],
+  "extraResources": [
+    {
+      "from": "public/LICENSE-yt-dlp.txt",
+      "to": "LICENSE-yt-dlp.txt"
+    }
+  ],
   "win": {
     "icon": "public/icon.ico",
     "target": [
@@ -24,10 +30,13 @@
     "artifactName": "${productName}-${version}-Setup.${ext}"
   },
   "nsis": {
-    "oneClick": true,
+    "oneClick": false,
     "perMachine": false,
-    "allowToChangeInstallationDirectory": false,
+    "allowToChangeInstallationDirectory": true,
     "deleteAppDataOnUninstall": false,
-    "shortcutName": "DBA Downloader"
+    "include": "build/installer.nsh",
+    "shortcutName": "DBA Downloader",
+    "installerIcon": "public/icon.ico",
+    "uninstallerIcon": "public/icon.ico"
   }
 }

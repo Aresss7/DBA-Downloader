@@ -46,10 +46,79 @@ export class YtDlpManager {
     });
   }
 
+  async fetchInfo(url: string): Promise<{
+    audioLangs: { code: string; name: string; formatId: string; isAudioOnly: boolean }[];
+    debug: string;
+  }> {
+    return new Promise((resolve, reject) => {
+      const args = ['--dump-json', '--no-download', '--no-playlist', url];
+      const proc = spawn(this.ytDlpPath, args);
+      let stdout = '';
+      let stderr = '';
+
+      proc.stdout.on('data', (data) => { stdout += data.toString(); });
+      proc.stderr.on('data', (data) => { stderr += data.toString(); });
+
+      proc.on('close', (code) => {
+        if (code !== 0) {
+          reject(new Error(stderr || `Exit code ${code}`));
+          return;
+        }
+        try {
+          const info = JSON.parse(stdout);
+          const formats = info.formats || [];
+
+          // Scan ALL formats that have audio + language
+          const bestPerLang = new Map<string, {
+            code: string; name: string; formatId: string;
+            tbr: number; isAudioOnly: boolean;
+          }>();
+
+          for (const fmt of formats) {
+            const lang = fmt.language;
+            if (!lang) continue;
+            if (!fmt.acodec || fmt.acodec === 'none') continue;
+
+            const isAudioOnly = !fmt.vcodec || fmt.vcodec === 'none';
+            const tbr = fmt.tbr || fmt.abr || 0;
+            const existing = bestPerLang.get(lang);
+
+            // Prefer audio-only over combined (cleaner merge);
+            // within same type, prefer higher bitrate
+            if (!existing ||
+              (isAudioOnly && !existing.isAudioOnly) ||
+              (isAudioOnly === existing.isAudioOnly && tbr > existing.tbr)) {
+              bestPerLang.set(lang, {
+                code: lang,
+                name: fmt.format_note || lang,
+                formatId: fmt.format_id,
+                tbr,
+                isAudioOnly
+              });
+            }
+          }
+
+          const audioLangs = Array.from(bestPerLang.values())
+            .map(({ code, name, formatId, isAudioOnly }) => ({ code, name, formatId, isAudioOnly }));
+          const debug = `Detected:${audioLangs.length} [${audioLangs.map(l => `${l.code}:${l.formatId}:${l.isAudioOnly ? 'audio' : 'combined'}`).join(', ')}]`;
+
+          console.log('[fetchInfo]', debug);
+          resolve({ audioLangs, debug });
+        } catch (e) {
+          console.error('[fetchInfo] Parse error:', e);
+          resolve({ audioLangs: [], debug: `ParseError: ${e}` });
+        }
+      });
+    });
+  }
+
   downloadVideo(url: string, options: {
     format?: string,
     quality?: string,
     audioOnly?: boolean,
+    audioFormatId?: string,
+    audioFormatIsAudioOnly?: boolean,
+    audioLang?: string,
     start?: string,
     end?: string,
     outDir: string
@@ -62,13 +131,25 @@ export class YtDlpManager {
     ];
 
     if (options.audioOnly) {
+      if (options.audioFormatId) {
+        args.push('-f', options.audioFormatId);
+      }
       args.push('-x', '--audio-format', 'mp3');
     } else if (options.quality) {
       const q = options.quality.replace('p', '');
-      // Use a more robust format selection that falls back to best if specific height fails
-      args.push('-f', `bestvideo[height<=${q}]+bestaudio/best[height<=${q}] / best[height<=${q}] / best`);
+      if (options.audioFormatId && options.audioFormatIsAudioOnly) {
+        // Audio-only format: merge with best video — quality controlled
+        args.push('-f', `bestvideo[height<=${q}]+${options.audioFormatId}/bestvideo[height<=${q}]+bestaudio/best[height<=${q}]/best`);
+      } else if (options.audioLang) {
+        // Combined format: use language filter with height constraint
+        args.push('-f', `best[height<=${q}][language*=${options.audioLang}]/best[language*=${options.audioLang}]/bestvideo[height<=${q}]+bestaudio/best[height<=${q}]/best`);
+      } else {
+        args.push('-f', `bestvideo[height<=${q}]+bestaudio/best[height<=${q}] / best[height<=${q}] / best`);
+      }
       args.push('--merge-output-format', 'mp4');
     }
+
+    console.log('[yt-dlp] Command args:', args.join(' '));
 
     if (options.start || options.end) {
       const start = options.start || '00:00:00';
@@ -76,7 +157,6 @@ export class YtDlpManager {
       args.push('--downloader', 'ffmpeg');
       args.push('--downloader-args', downloaderArgs);
       if (options.end) {
-        // This is tricky with yt-dlp direct, better use --download-sections
         args.push('--download-sections', `*${start}-${options.end}`);
       }
     }

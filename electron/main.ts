@@ -1,6 +1,7 @@
 import { app, BrowserWindow, ipcMain, shell, dialog } from 'electron'
 import { fileURLToPath } from 'node:url'
 import path from 'node:path'
+import fs from 'node:fs'
 import { YtDlpManager } from './yt-dlp-manager'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
@@ -17,6 +18,25 @@ process.env.VITE_PUBLIC = VITE_DEV_SERVER_URL ? path.join(process.env.APP_ROOT, 
 let win: BrowserWindow | null
 const ytDlpManager = new YtDlpManager()
 let currentDownloadProcess: ReturnType<typeof ytDlpManager.downloadVideo> | null = null
+
+// File-based settings
+function getSettingsPath() {
+  return path.join(app.getPath('userData'), 'settings.json')
+}
+
+function readSettings(): Record<string, any> {
+  try {
+    return JSON.parse(fs.readFileSync(getSettingsPath(), 'utf-8'))
+  } catch {
+    return {}
+  }
+}
+
+function writeSetting(key: string, value: any) {
+  const settings = readSettings()
+  settings[key] = value
+  fs.writeFileSync(getSettingsPath(), JSON.stringify(settings, null, 2))
+}
 
 function createWindow() {
   win = new BrowserWindow({
@@ -105,4 +125,22 @@ ipcMain.handle('cancel-download', async () => {
     return true
   }
   return false
+})
+
+ipcMain.handle('fetch-video-info', async (_event, url: string) => {
+  return await ytDlpManager.fetchInfo(url)
+})
+
+ipcMain.handle('get-setting', async (_event, key: string) => {
+  return readSettings()[key] ?? null
+})
+
+ipcMain.handle('set-setting', async (_event, key: string, value: any) => {
+  writeSetting(key, value)
+  return true
+})
+
+ipcMain.handle('open-external', async (_event, url: string) => {
+  await shell.openExternal(url)
+  return true
 })

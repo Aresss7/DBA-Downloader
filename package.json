@@ -1,5 +1,6 @@
 {
   "name": "yt-dlp-downloader",
+  "productName": "DBA Downloader",
   "private": true,
   "version": "1.0.0",
   "type": "module",
