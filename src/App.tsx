@@ -80,6 +80,7 @@ function App() {
     const [_fetchingInfo, setFetchingInfo] = useState(false)
     const [selectedLangCode, setSelectedLangCode] = useState<string | null>(null)
     const [showPremium, setShowPremium] = useState(false)
+    const [showFullLicense, setShowFullLicense] = useState(false)
 
     // Close dropdown on outside click
     useEffect(() => {
@@ -749,7 +750,13 @@ function App() {
                         </div>
 
                         <p className="text-[10px] text-slate-600 font-semibold" style={{ marginBottom: 20 }}>
-                            By clicking "Accept", you confirm your agreement with these terms.
+                            By clicking "Accept", you confirm your agreement with the{' '}
+                            <span
+                                onClick={() => setShowFullLicense(true)}
+                                style={{ color: '#60a5fa', cursor: 'pointer', textDecoration: 'underline', textUnderlineOffset: 2 }}
+                                onMouseEnter={e => { e.currentTarget.style.color = '#93bbfc'; }}
+                                onMouseLeave={e => { e.currentTarget.style.color = '#60a5fa'; }}
+                            >Full License Agreement</span>.
                         </p>
 
                         <div className="flex gap-3">
@@ -779,6 +786,76 @@ function App() {
                             >
                                 ACCEPT
                             </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* ── Full License Modal ── */}
+            {showFullLicense && (
+                <div style={{
+                    position: 'fixed', inset: 0, zIndex: 1000,
+                    background: 'rgba(0,0,0,0.8)', backdropFilter: 'blur(14px)',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    padding: 24,
+                }} onClick={() => setShowFullLicense(false)}>
+                    <div style={{
+                        maxWidth: 560, width: '100%', maxHeight: '80vh',
+                        background: 'rgba(15,23,42,0.98)',
+                        border: '1px solid rgba(255,255,255,0.08)',
+                        borderRadius: 20, padding: '32px 28px',
+                        boxShadow: '0 24px 80px rgba(0,0,0,0.6)',
+                        animation: 'fadeSlideIn 0.3s ease',
+                        display: 'flex', flexDirection: 'column',
+                    }} onClick={e => e.stopPropagation()}>
+                        <div className="flex items-center justify-between" style={{ marginBottom: 20, flexShrink: 0 }}>
+                            <div className="flex items-center gap-3">
+                                <div style={{
+                                    width: 40, height: 40, borderRadius: 12,
+                                    background: 'rgba(59,130,246,0.1)',
+                                    border: '1px solid rgba(59,130,246,0.2)',
+                                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                                }}>
+                                    <Shield style={{ width: 20, height: 20, color: '#60a5fa' }} />
+                                </div>
+                                <div>
+                                    <div className="text-sm font-black text-white">Full License Agreement</div>
+                                    <div className="text-[10px] font-bold text-slate-500">DBA Downloader</div>
+                                </div>
+                            </div>
+                            <button
+                                onClick={() => setShowFullLicense(false)}
+                                style={{
+                                    width: 28, height: 28, borderRadius: 8,
+                                    background: 'rgba(255,255,255,0.05)',
+                                    border: 'none', cursor: 'pointer',
+                                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                                }}
+                            >
+                                <X style={{ width: 14, height: 14, color: '#64748b' }} />
+                            </button>
+                        </div>
+                        <div style={{ overflowY: 'auto', flex: 1, paddingRight: 8 }}>
+                            <pre className="text-[11px] text-slate-400" style={{
+                                whiteSpace: 'pre-wrap', wordBreak: 'break-word',
+                                fontFamily: 'inherit', lineHeight: 1.8, margin: 0,
+                            }}>{`DBA Downloader - Custom License
+
+Copyright (c) 2026 Ars M. All rights reserved.
+
+Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to use, copy, and modify the Software for personal and non-commercial purposes, subject to the following conditions:
+
+1. The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+
+2. The Software, or any modified version of it, MAY NOT be sold, sublicensed, or commercially distributed without prior written permission from the copyright holder.
+
+3. The Software MAY NOT be included in any paid product or service without prior written permission from the copyright holder.
+
+4. Redistribution of the Software for non-commercial purposes is permitted, provided that this license and copyright notice are retained in full.
+
+5. The Premium version of DBA Downloader is distributed under a separate proprietary license and is not covered by this license.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.`}</pre>
                         </div>
                     </div>
                 </div>
@@ -877,7 +954,7 @@ function App() {
                             <span className="text-slate-400 font-semibold">Electron + React</span>
                             <br />
                             <span className="font-bold">License:</span>{' '}
-                            <span className="text-slate-400 font-semibold">MIT</span>
+                            <span className="text-slate-400 font-semibold">Custom</span>
                         </div>
                     </div>
                 </div>
