@@ -56,7 +56,7 @@ The installer will appear in `release/1.0.0/`.
 
 ## 🙏 Credits
 
-Powered by [yt-dlp](https://github.com/yt-dlp/yt-dlp), distributed under [The Unlicense](https://unlicense.org/).
+Powered by [yt-dlp](https://github.com/yt-dlp/yt-dlp).
 
 ## 📄 License
 
