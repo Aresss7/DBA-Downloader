@@ -46,4 +46,4 @@ The installer will appear in `release/1.0.0/`.
 
 ## 📄 License
 
-MIT
+GPL-3.0
