@@ -60,4 +60,4 @@ Powered by [yt-dlp](https://github.com/yt-dlp/yt-dlp).
 
 ## 📄 License
 
-[MIT](LICENSE)
+[Custom License](LICENSE) — Free for personal and non-commercial use. Commercial sale or distribution is prohibited without the author's written permission.

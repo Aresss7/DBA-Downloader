@@ -1,16 +1,28 @@
-MIT License
+DBA Downloader - Custom License
 
-Copyright (c) 2026 Ars M.
+Copyright (c) 2026 Ars M. All rights reserved.
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
+of this software and associated documentation files (the "Software"), to use,
+copy, and modify the Software for personal and non-commercial purposes,
+subject to the following conditions:
 
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
+1. The above copyright notice and this permission notice shall be included
+   in all copies or substantial portions of the Software.
+
+2. The Software, or any modified version of it, MAY NOT be sold,
+   sublicensed, or commercially distributed without prior written
+   permission from the copyright holder.
+
+3. The Software MAY NOT be included in any paid product or service
+   without prior written permission from the copyright holder.
+
+4. Redistribution of the Software for non-commercial purposes is
+   permitted, provided that this license and copyright notice are
+   retained in full.
+
+5. The Premium version of DBA Downloader is distributed under a separate
+   proprietary license and is not covered by this license.
 
 THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
