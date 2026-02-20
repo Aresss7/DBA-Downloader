@@ -15,6 +15,7 @@ declare global {
             setSetting: (key: string, value: any) => Promise<boolean>
             openExternal: (url: string) => Promise<boolean>
             onDownloadProgress: (callback: (progress: string) => void) => void
+            onInitProgress: (callback: (data: { step: number; totalSteps: number; label: string; percent: number; done?: boolean; error?: boolean }) => void) => void
         }
     }
 }
@@ -81,6 +82,12 @@ function App() {
     const [selectedLangCode, setSelectedLangCode] = useState<string | null>(null)
     const [showPremium, setShowPremium] = useState(false)
     const [showFullLicense, setShowFullLicense] = useState(false)
+    const [isInitializing, setIsInitializing] = useState(true)
+    const [initLabel, setInitLabel] = useState('Starting...')
+    const [initPercent, setInitPercent] = useState(0)
+    const [initStep, setInitStep] = useState(0)
+    const [initTotalSteps, setInitTotalSteps] = useState(3)
+    const [initError, setInitError] = useState(false)
 
     // Close dropdown on outside click
     useEffect(() => {
@@ -122,6 +129,29 @@ function App() {
         });
     }, []);
 
+    // Listen for init progress (binary downloads on first launch)
+    useEffect(() => {
+        let gotEvent = false;
+        window.electronAPI.onInitProgress((data) => {
+            gotEvent = true;
+            setInitLabel(data.label);
+            setInitStep(data.step);
+            setInitTotalSteps(data.totalSteps);
+            if (data.percent >= 0) setInitPercent(data.percent);
+            if (data.done) {
+                setTimeout(() => setIsInitializing(false), 400);
+            }
+            if (data.error) {
+                setInitError(true);
+            }
+        });
+        // Fallback: if binaries already exist, the done event may fire before React mounts
+        // In that case, dismiss after a short delay
+        setTimeout(() => {
+            if (!gotEvent) setIsInitializing(false);
+        }, 3000);
+    }, []);
+
     const handleSelectFolder = async () => {
         const path = await window.electronAPI.selectFolder();
         if (path) {
@@ -153,9 +183,9 @@ function App() {
                 end: timeMode ? endTime : undefined,
                 outDir: savePath || undefined,
                 openAfter: openFolder,
-                audioFormatId: audioFormatIsAudioOnly ? audioFormatId : undefined,
+                audioFormatId,
                 audioFormatIsAudioOnly,
-                audioLang: !audioFormatIsAudioOnly ? audioLang : undefined
+                audioLang
             });
             setStatus('Complete!');
         } catch { setStatus('Cancelled'); }
@@ -178,6 +208,7 @@ function App() {
             }
         } catch (e: any) {
             console.error('[handleDownload] fetchVideoInfo error:', e);
+            setStatus('Track detection failed – downloading default...');
         }
         setFetchingInfo(false);
         await startDownload();
@@ -198,6 +229,97 @@ function App() {
                 <div className="orb orb-2" />
                 <div className="orb orb-3" />
             </div>
+
+            {/* Initialization overlay */}
+            {isInitializing && (
+                <div style={{
+                    position: 'fixed',
+                    inset: 0,
+                    zIndex: 9999,
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    backdropFilter: 'blur(20px)',
+                    WebkitBackdropFilter: 'blur(20px)',
+                    background: 'rgba(10, 12, 18, 0.85)',
+                }}>
+                    {/* Pulsing logo */}
+                    <div style={{
+                        width: 56, height: 56,
+                        borderRadius: 16,
+                        background: 'linear-gradient(135deg, #6366f1, #8b5cf6)',
+                        display: 'flex', alignItems: 'center', justifyContent: 'center',
+                        marginBottom: 28,
+                        animation: 'pulse 2s ease-in-out infinite',
+                        boxShadow: '0 0 40px rgba(99, 102, 241, 0.3)',
+                    }}>
+                        <Download size={28} color="white" />
+                    </div>
+
+                    {/* Step counter */}
+                    {!initError && initStep > 0 && (
+                        <div style={{
+                            fontSize: 12,
+                            color: 'rgba(255,255,255,0.45)',
+                            marginBottom: 8,
+                            letterSpacing: '0.5px',
+                        }}>
+                            Step {initStep} of {initTotalSteps}
+                        </div>
+                    )}
+
+                    {/* Label */}
+                    <div style={{
+                        fontSize: 15,
+                        fontWeight: 500,
+                        color: initError ? '#f87171' : 'rgba(255,255,255,0.9)',
+                        marginBottom: 20,
+                    }}>
+                        {initLabel}
+                    </div>
+
+                    {/* Progress bar */}
+                    {!initError && (
+                        <div style={{
+                            width: 280,
+                            height: 4,
+                            borderRadius: 2,
+                            background: 'rgba(255,255,255,0.08)',
+                            overflow: 'hidden',
+                        }}>
+                            {initPercent > 0 ? (
+                                <div style={{
+                                    height: '100%',
+                                    width: `${initPercent}%`,
+                                    borderRadius: 2,
+                                    background: 'linear-gradient(90deg, #6366f1, #8b5cf6)',
+                                    transition: 'width 0.3s ease',
+                                }} />
+                            ) : (
+                                <div style={{
+                                    height: '100%',
+                                    width: '40%',
+                                    borderRadius: 2,
+                                    background: 'linear-gradient(90deg, transparent, #6366f1, transparent)',
+                                    animation: 'shimmer 1.5s ease-in-out infinite',
+                                }} />
+                            )}
+                        </div>
+                    )}
+
+                    {/* Percent text */}
+                    {!initError && initPercent > 0 && (
+                        <div style={{
+                            fontSize: 12,
+                            color: 'rgba(255,255,255,0.4)',
+                            marginTop: 10,
+                        }}>
+                            {initPercent}%
+                        </div>
+                    )}
+                </div>
+            )}
 
             {/* Header */}
             <header

@@ -16,6 +16,7 @@ export const RENDERER_DIST = path.join(process.env.APP_ROOT, 'dist')
 process.env.VITE_PUBLIC = VITE_DEV_SERVER_URL ? path.join(process.env.APP_ROOT, 'public') : RENDERER_DIST
 
 let win: BrowserWindow | null
+app.setName('DBA Downloader')
 const ytDlpManager = new YtDlpManager()
 let currentDownloadProcess: ReturnType<typeof ytDlpManager.downloadVideo> | null = null
 
@@ -75,8 +76,16 @@ app.on('activate', () => {
 })
 
 app.whenReady().then(async () => {
-  await ytDlpManager.checkAndDownloadBinaries()
   createWindow()
+  try {
+    await ytDlpManager.checkAndDownloadBinaries((data) => {
+      win?.webContents.send('init-progress', data)
+    })
+    win?.webContents.send('init-progress', { step: 3, totalSteps: 3, label: 'Ready', percent: 100, done: true })
+  } catch (err) {
+    console.error('[init] Failed to download binaries:', err)
+    win?.webContents.send('init-progress', { step: 0, totalSteps: 3, label: 'Download failed – restart the app to retry', percent: 0, error: true })
+  }
 })
 
 // IPC Handlers
@@ -98,6 +107,7 @@ ipcMain.handle('select-folder', async () => {
 })
 
 ipcMain.handle('download-video', async (_event, { url, options }) => {
+  await ytDlpManager.checkAndDownloadBinaries()
   const outDir = options.outDir || app.getPath('downloads')
 
   return new Promise((resolve, reject) => {
@@ -105,6 +115,11 @@ ipcMain.handle('download-video', async (_event, { url, options }) => {
       win?.webContents.send('download-progress', progress)
     })
     currentDownloadProcess = proc
+
+    proc.on('error', (err) => {
+      currentDownloadProcess = null
+      reject(new Error(`Failed to start yt-dlp: ${err.message}`))
+    })
 
     proc.on('close', (code) => {
       currentDownloadProcess = null
@@ -128,6 +143,7 @@ ipcMain.handle('cancel-download', async () => {
 })
 
 ipcMain.handle('fetch-video-info', async (_event, url: string) => {
+  await ytDlpManager.checkAndDownloadBinaries()
   return await ytDlpManager.fetchInfo(url)
 })
 

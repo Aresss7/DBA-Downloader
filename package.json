@@ -10,23 +10,25 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "react": "^18.2.0",
-    "react-dom": "^18.2.0",
+    "@types/adm-zip": "^0.5.7",
+    "adm-zip": "^0.5.16",
     "axios": "^1.6.7",
     "clsx": "^2.1.0",
-    "tailwind-merge": "^2.2.1",
-    "lucide-react": "^0.344.0"
+    "lucide-react": "^0.344.0",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "tailwind-merge": "^2.2.1"
   },
   "devDependencies": {
     "@types/react": "^18.2.55",
     "@types/react-dom": "^18.2.19",
     "@vitejs/plugin-react": "^4.2.1",
-    "typescript": "^5.2.2",
     "electron": "^30.0.1",
     "electron-builder": "^24.13.3",
+    "typescript": "^5.2.2",
+    "vite": "^5.1.6",
     "vite-plugin-electron": "^0.28.6",
-    "vite-plugin-electron-renderer": "^0.14.5",
-    "vite": "^5.1.6"
+    "vite-plugin-electron-renderer": "^0.14.5"
   },
   "main": "dist-electron/main.js"
 }
