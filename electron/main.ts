@@ -106,12 +106,23 @@ ipcMain.handle('select-folder', async () => {
   return result.canceled ? null : result.filePaths[0]
 })
 
+ipcMain.handle('select-cookie-file', async () => {
+  if (!win) return null
+  const result = await dialog.showOpenDialog(win, {
+    title: 'Select cookies.txt file',
+    filters: [{ name: 'Cookies', extensions: ['txt'] }],
+    properties: ['openFile']
+  })
+  return result.canceled ? null : result.filePaths[0]
+})
+
 ipcMain.handle('download-video', async (_event, { url, options }) => {
   await ytDlpManager.checkAndDownloadBinaries()
   const outDir = options.outDir || app.getPath('downloads')
+  const cookieFile = readSettings()['cookieFile'] || ''
 
   return new Promise((resolve, reject) => {
-    const proc = ytDlpManager.downloadVideo(url, { ...options, outDir }, (progress) => {
+    const proc = ytDlpManager.downloadVideo(url, { ...options, outDir, cookieFile }, (progress) => {
       win?.webContents.send('download-progress', progress)
     })
     currentDownloadProcess = proc
@@ -144,7 +155,8 @@ ipcMain.handle('cancel-download', async () => {
 
 ipcMain.handle('fetch-video-info', async (_event, url: string) => {
   await ytDlpManager.checkAndDownloadBinaries()
-  return await ytDlpManager.fetchInfo(url)
+  const cookieFile = readSettings()['cookieFile'] || ''
+  return await ytDlpManager.fetchInfo(url, cookieFile)
 })
 
 ipcMain.handle('get-setting', async (_event, key: string) => {

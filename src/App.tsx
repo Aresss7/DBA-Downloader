@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react'
-import { Download, Monitor, Music, ChevronDown, Check, RefreshCw, Folder, Link as LinkIcon, Scissors, FolderOpen, X, Shield, Info, Crown } from 'lucide-react'
+import { Download, Monitor, Music, ChevronDown, Check, RefreshCw, Folder, Link as LinkIcon, Scissors, FolderOpen, X, Shield, Info, Crown, FileText } from 'lucide-react'
 import TimeInput from './components/TimeInput'
 
 declare global {
@@ -14,6 +14,7 @@ declare global {
             getSetting: (key: string) => Promise<any>
             setSetting: (key: string, value: any) => Promise<boolean>
             openExternal: (url: string) => Promise<boolean>
+            selectCookieFile: () => Promise<string | null>
             onDownloadProgress: (callback: (progress: string) => void) => void
             onInitProgress: (callback: (data: { step: number; totalSteps: number; label: string; percent: number; done?: boolean; error?: boolean }) => void) => void
         }
@@ -88,6 +89,7 @@ function App() {
     const [initStep, setInitStep] = useState(0)
     const [initTotalSteps, setInitTotalSteps] = useState(3)
     const [initError, setInitError] = useState(false)
+    const [cookieFile, setCookieFile] = useState('')
 
     // Close dropdown on outside click
     useEffect(() => {
@@ -115,6 +117,8 @@ function App() {
             if (savedQuality) setQuality(savedQuality);
             if (savedTimeMode !== null && savedTimeMode !== undefined) setTimeMode(!!savedTimeMode);
             if (savedOpenFolder !== null && savedOpenFolder !== undefined) setOpenFolder(!!savedOpenFolder);
+            const savedCookieFile = await window.electronAPI.getSetting('cookieFile');
+            if (savedCookieFile) setCookieFile(savedCookieFile);
             setSettingsLoaded(true);
         })();
     }, []);
@@ -567,6 +571,74 @@ function App() {
                                 <input type="checkbox" checked={openFolder} onChange={(e) => { setOpenFolder(e.target.checked); window.electronAPI.setSetting('openFolder', e.target.checked); }} className="sr-only" />
                                 <div className="switch-track"><div className="switch-thumb" /></div>
                             </label>
+                        </div>
+
+                        {/* Divider */}
+                        <div style={{ height: 1, background: 'rgba(255,255,255,0.04)' }} />
+
+                        {/* Cookie File Import */}
+                        <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-3">
+                                <div style={{
+                                    width: 34, height: 34, borderRadius: 10,
+                                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                                    transition: 'all 0.3s',
+                                    background: cookieFile ? 'rgba(34,197,94,0.1)' : 'rgba(255,255,255,0.03)',
+                                    border: cookieFile ? '1px solid rgba(34,197,94,0.2)' : '1px solid rgba(255,255,255,0.04)',
+                                    boxShadow: cookieFile ? '0 0 12px rgba(34,197,94,0.1)' : 'none',
+                                }}>
+                                    <FileText style={{ width: 15, height: 15, color: cookieFile ? '#4ade80' : '#475569' }} />
+                                </div>
+                                <div>
+                                    <span className="text-xs font-bold" style={{ color: cookieFile ? '#fff' : '#64748b' }}>Cookies File</span>
+                                    {cookieFile && (
+                                        <div className="text-[9px] font-semibold" style={{ color: '#4ade80', marginTop: 1 }}>
+                                            {cookieFile.split('\\').pop()?.split('/').pop()}
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
+                            <div className="flex items-center gap-2">
+                                {cookieFile && (
+                                    <button
+                                        onClick={() => { setCookieFile(''); window.electronAPI.setSetting('cookieFile', ''); }}
+                                        style={{
+                                            width: 28, height: 28, borderRadius: 7,
+                                            background: 'rgba(239,68,68,0.08)',
+                                            border: '1px solid rgba(239,68,68,0.15)',
+                                            display: 'flex', alignItems: 'center', justifyContent: 'center',
+                                            cursor: 'pointer', transition: 'all 0.2s',
+                                        }}
+                                        onMouseEnter={e => { e.currentTarget.style.background = 'rgba(239,68,68,0.15)'; }}
+                                        onMouseLeave={e => { e.currentTarget.style.background = 'rgba(239,68,68,0.08)'; }}
+                                        title="Remove cookie file"
+                                    >
+                                        <X style={{ width: 12, height: 12, color: '#f87171' }} />
+                                    </button>
+                                )}
+                                <button
+                                    onClick={async () => {
+                                        const filePath = await window.electronAPI.selectCookieFile();
+                                        if (filePath) {
+                                            setCookieFile(filePath);
+                                            window.electronAPI.setSetting('cookieFile', filePath);
+                                        }
+                                    }}
+                                    style={{
+                                        height: 32, padding: '0 12px', borderRadius: 8,
+                                        background: cookieFile ? 'rgba(34,197,94,0.08)' : 'rgba(255,255,255,0.03)',
+                                        border: cookieFile ? '1px solid rgba(34,197,94,0.15)' : '1px solid rgba(255,255,255,0.06)',
+                                        color: cookieFile ? '#4ade80' : '#64748b',
+                                        cursor: 'pointer', fontSize: 11, fontWeight: 700,
+                                        display: 'flex', alignItems: 'center', gap: 6,
+                                        transition: 'all 0.2s', letterSpacing: '0.03em',
+                                    }}
+                                    onMouseEnter={e => { e.currentTarget.style.background = cookieFile ? 'rgba(34,197,94,0.15)' : 'rgba(255,255,255,0.06)'; }}
+                                    onMouseLeave={e => { e.currentTarget.style.background = cookieFile ? 'rgba(34,197,94,0.08)' : 'rgba(255,255,255,0.03)'; }}
+                                >
+                                    {cookieFile ? 'Change' : 'Import .txt'}
+                                </button>
+                            </div>
                         </div>
                     </section>
                 </main>

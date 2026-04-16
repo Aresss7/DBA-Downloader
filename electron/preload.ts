@@ -10,6 +10,7 @@ contextBridge.exposeInMainWorld('electronAPI', {
   getSetting: (key: string) => ipcRenderer.invoke('get-setting', key),
   setSetting: (key: string, value: any) => ipcRenderer.invoke('set-setting', key, value),
   openExternal: (url: string) => ipcRenderer.invoke('open-external', url),
+  selectCookieFile: () => ipcRenderer.invoke('select-cookie-file'),
   onDownloadProgress: (callback: (progress: string) => void) => {
     ipcRenderer.on('download-progress', (_event, value: string) => callback(value))
   },

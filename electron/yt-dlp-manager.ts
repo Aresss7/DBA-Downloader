@@ -216,13 +216,16 @@ export class YtDlpManager {
     });
   }
 
-  async fetchInfo(url: string): Promise<{
+  async fetchInfo(url: string, cookieFile?: string): Promise<{
     audioLangs: { code: string; name: string; formatId: string; isAudioOnly: boolean }[];
     debug: string;
   }> {
     this.log(`Fetching info for: ${url}`);
     return new Promise((resolve, reject) => {
       const args = [...this.getBaseArgs(), '--dump-json', '--no-download', '--no-playlist', url];
+      if (cookieFile && fs.existsSync(cookieFile)) {
+        args.push('--cookies', cookieFile);
+      }
       this.log(`Running: ${this.ytDlpPath} ${args.join(' ')}`);
 
       const proc = spawn(this.ytDlpPath, args);
@@ -309,7 +312,8 @@ export class YtDlpManager {
     audioLang?: string,
     start?: string,
     end?: string,
-    outDir: string
+    outDir: string,
+    cookieFile?: string
   }, onProgress: (progress: string) => void) {
     this.log(`Starting download for: ${url}`);
     this.log(`Options: audioFormatId=${options.audioFormatId} audioFormatIsAudioOnly=${options.audioFormatIsAudioOnly} audioLang=${options.audioLang} quality=${options.quality} audioOnly=${options.audioOnly}`);
@@ -320,6 +324,9 @@ export class YtDlpManager {
       '--progress-template', '%(progress._percent_str)s',
       url
     ];
+    if (options.cookieFile && fs.existsSync(options.cookieFile)) {
+      args.push('--cookies', options.cookieFile);
+    }
 
     if (options.audioOnly) {
       if (options.audioFormatId) {
