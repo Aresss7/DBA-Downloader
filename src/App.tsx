@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react'
-import { Download, Monitor, Music, ChevronDown, Check, RefreshCw, Folder, Link as LinkIcon, Scissors, FolderOpen, X, Shield, Info, Crown, FileText } from 'lucide-react'
+import { Download, Monitor, Music, ChevronDown, Check, RefreshCw, Folder, Link as LinkIcon, Scissors, FolderOpen, X, Shield, Info, Crown, FileText, Languages, Search, Globe } from 'lucide-react'
 import TimeInput from './components/TimeInput'
 
 declare global {
@@ -50,14 +50,121 @@ const LANG_TO_COUNTRY: Record<string, string> = {
     ny: 'mw', sn: 'zw', st: 'za', xh: 'za', ts: 'za',
     fil: 'ph', tl: 'ph', ceb: 'ph', haw: 'us', sm: 'ws',
     mi: 'nz', sd: 'pk', ku: 'iq', fy: 'nl', lb: 'lu',
-    gd: 'gb', co: 'fr', ht: 'ht', hmn: 'la',
+    gd: 'gb', co: 'fr', ht: 'ht', hmn: 'la', fa: 'ir', su: 'id',
 };
 
 function langFlagUrl(code: string): string {
-    const country = LANG_TO_COUNTRY[code] || LANG_TO_COUNTRY[code.slice(0, 2)];
+    const lower = code.toLowerCase();
+    const country = LANG_TO_COUNTRY[lower] || LANG_TO_COUNTRY[lower.slice(0, 2)];
     if (country) return `https://flagcdn.com/24x18/${country}.png`;
     return '';
 }
+
+export interface YouTubeLanguage {
+    code: string;
+    name: string;
+    nativeName?: string;
+}
+
+const YOUTUBE_LANGUAGES: YouTubeLanguage[] = [
+    { code: 'ru', name: 'Russian', nativeName: 'Русский' },
+    { code: 'en', name: 'English', nativeName: 'English' },
+    { code: 'es', name: 'Spanish', nativeName: 'Español' },
+    { code: 'de', name: 'German', nativeName: 'Deutsch' },
+    { code: 'fr', name: 'French', nativeName: 'Français' },
+    { code: 'it', name: 'Italian', nativeName: 'Italiano' },
+    { code: 'pt', name: 'Portuguese', nativeName: 'Português' },
+    { code: 'ja', name: 'Japanese', nativeName: '日本語' },
+    { code: 'ko', name: 'Korean', nativeName: '한국어' },
+    { code: 'zh', name: 'Chinese', nativeName: '中文' },
+    { code: 'zh-Hans', name: 'Chinese (Simplified)', nativeName: '简体中文' },
+    { code: 'zh-Hant', name: 'Chinese (Traditional)', nativeName: '繁體中文' },
+    { code: 'tr', name: 'Turkish', nativeName: 'Türkçe' },
+    { code: 'ar', name: 'Arabic', nativeName: 'العربية' },
+    { code: 'hi', name: 'Hindi', nativeName: 'हिन्दी' },
+    { code: 'uk', name: 'Ukrainian', nativeName: 'Українська' },
+    { code: 'pl', name: 'Polish', nativeName: 'Polski' },
+    { code: 'cs', name: 'Czech', nativeName: 'Čeština' },
+    { code: 'nl', name: 'Dutch', nativeName: 'Nederlands' },
+    { code: 'sv', name: 'Swedish', nativeName: 'Svenska' },
+    { code: 'da', name: 'Danish', nativeName: 'Dansk' },
+    { code: 'fi', name: 'Finnish', nativeName: 'Suomi' },
+    { code: 'no', name: 'Norwegian', nativeName: 'Norsk' },
+    { code: 'el', name: 'Greek', nativeName: 'Ελληνικά' },
+    { code: 'hu', name: 'Hungarian', nativeName: 'Magyar' },
+    { code: 'ro', name: 'Romanian', nativeName: 'Română' },
+    { code: 'th', name: 'Thai', nativeName: 'ไทย' },
+    { code: 'vi', name: 'Vietnamese', nativeName: 'Tiếng Việt' },
+    { code: 'id', name: 'Indonesian', nativeName: 'Bahasa Indonesia' },
+    { code: 'ms', name: 'Malay', nativeName: 'Bahasa Melayu' },
+    { code: 'he', name: 'Hebrew', nativeName: 'עברית' },
+    { code: 'bg', name: 'Bulgarian', nativeName: 'Български' },
+    { code: 'sk', name: 'Slovak', nativeName: 'Slovenčina' },
+    { code: 'hr', name: 'Croatian', nativeName: 'Hrvatski' },
+    { code: 'sr', name: 'Serbian', nativeName: 'Српски' },
+    { code: 'lt', name: 'Lithuanian', nativeName: 'Lietuvių' },
+    { code: 'lv', name: 'Latvian', nativeName: 'Latviešu' },
+    { code: 'et', name: 'Estonian', nativeName: 'Eesti' },
+    { code: 'ka', name: 'Georgian', nativeName: 'ქართული' },
+    { code: 'az', name: 'Azerbaijani', nativeName: 'Azərbaycan' },
+    { code: 'kk', name: 'Kazakh', nativeName: 'Қазақша' },
+    { code: 'uz', name: 'Uzbek', nativeName: 'Oʻzbek' },
+    { code: 'hy', name: 'Armenian', nativeName: 'Հայերեն' },
+    { code: 'be', name: 'Belarusian', nativeName: 'Беларуская' },
+    { code: 'ta', name: 'Tamil', nativeName: 'தமிழ்' },
+    { code: 'te', name: 'Telugu', nativeName: 'తెలుగు' },
+    { code: 'ml', name: 'Malayalam', nativeName: 'മലയാളം' },
+    { code: 'bn', name: 'Bengali', nativeName: 'বাংলা' },
+    { code: 'mr', name: 'Marathi', nativeName: 'मराठी' },
+    { code: 'ur', name: 'Urdu', nativeName: 'اردو' },
+    { code: 'fa', name: 'Persian', nativeName: 'فارسی' },
+    { code: 'fil', name: 'Filipino', nativeName: 'Tagalog' },
+    { code: 'sw', name: 'Swahili', nativeName: 'Kiswahili' },
+    { code: 'af', name: 'Afrikaans', nativeName: 'Afrikaans' },
+    { code: 'is', name: 'Icelandic', nativeName: 'Íslenska' },
+    { code: 'sl', name: 'Slovenian', nativeName: 'Slovenščina' },
+    { code: 'mk', name: 'Macedonian', nativeName: 'Македонски' },
+    { code: 'sq', name: 'Albanian', nativeName: 'Shqip' },
+    { code: 'bs', name: 'Bosnian', nativeName: 'Bosanski' },
+    { code: 'mn', name: 'Mongolian', nativeName: 'Монгол' },
+    { code: 'ne', name: 'Nepali', nativeName: 'नेपाली' },
+    { code: 'si', name: 'Sinhala', nativeName: 'සිංහල' },
+    { code: 'km', name: 'Khmer', nativeName: 'ខ្មែរ' },
+    { code: 'my', name: 'Burmese', nativeName: 'မြန်မာ' },
+    { code: 'am', name: 'Amharic', nativeName: 'አማርኛ' },
+    { code: 'lo', name: 'Lao', nativeName: 'ລາວ' },
+    { code: 'ky', name: 'Kyrgyz', nativeName: 'Кыргызча' },
+    { code: 'tg', name: 'Tajik', nativeName: 'Тоҷикӣ' },
+    { code: 'tk', name: 'Turkmen', nativeName: 'Türkmençe' },
+    { code: 'tt', name: 'Tatar', nativeName: 'Татарча' },
+    { code: 'eu', name: 'Basque', nativeName: 'Euskara' },
+    { code: 'ca', name: 'Catalan', nativeName: 'Català' },
+    { code: 'gl', name: 'Galician', nativeName: 'Galego' },
+    { code: 'cy', name: 'Welsh', nativeName: 'Cymraeg' },
+    { code: 'ga', name: 'Irish', nativeName: 'Gaeilge' },
+    { code: 'mt', name: 'Maltese', nativeName: 'Malti' },
+    { code: 'la', name: 'Latin', nativeName: 'Latina' },
+    { code: 'eo', name: 'Esperanto', nativeName: 'Esperanto' },
+    { code: 'pa', name: 'Punjabi', nativeName: 'ਪੰਜਾਬੀ' },
+    { code: 'gu', name: 'Gujarati', nativeName: 'ગુજરાતી' },
+    { code: 'kn', name: 'Kannada', nativeName: 'ಕನ್ನಡ' },
+    { code: 'ku', name: 'Kurdish', nativeName: 'Kurdî' },
+    { code: 'so', name: 'Somali', nativeName: 'Soomaali' },
+    { code: 'zu', name: 'Zulu', nativeName: 'isiZulu' },
+    { code: 'xh', name: 'Xhosa', nativeName: 'isiXhosa' },
+    { code: 'yo', name: 'Yoruba', nativeName: 'Yorùbá' },
+    { code: 'ig', name: 'Igbo', nativeName: 'Ásụ̀sụ́ Ìgbò' },
+    { code: 'ha', name: 'Hausa', nativeName: 'Harshen Hausa' },
+    { code: 'mg', name: 'Malagasy', nativeName: 'Malagasy' },
+    { code: 'jv', name: 'Javanese', nativeName: 'Basa Jawa' },
+    { code: 'su', name: 'Sundanese', nativeName: 'Basa Sunda' },
+    { code: 'ht', name: 'Haitian Creole', nativeName: 'Kreyòl ayisyen' },
+    { code: 'lb', name: 'Luxembourgish', nativeName: 'Lëtzebuergesch' },
+    { code: 'fy', name: 'Western Frisian', nativeName: 'Frysk' },
+    { code: 'haw', name: 'Hawaiian', nativeName: 'ʻŌlelo Hawaiʻi' },
+    { code: 'sm', name: 'Samoan', nativeName: 'Gagana Sāmoa' },
+    { code: 'mi', name: 'Maori', nativeName: 'Māori' },
+];
 
 function App() {
     const [url, setUrl] = useState('')
@@ -90,6 +197,9 @@ function App() {
     const [initTotalSteps, setInitTotalSteps] = useState(3)
     const [initError, setInitError] = useState(false)
     const [cookieFile, setCookieFile] = useState('')
+    const [preferredLang, setPreferredLang] = useState('')
+    const [showPrefLangModal, setShowPrefLangModal] = useState(false)
+    const [prefLangSearch, setPrefLangSearch] = useState('')
 
     // Close dropdown on outside click
     useEffect(() => {
@@ -119,6 +229,8 @@ function App() {
             if (savedOpenFolder !== null && savedOpenFolder !== undefined) setOpenFolder(!!savedOpenFolder);
             const savedCookieFile = await window.electronAPI.getSetting('cookieFile');
             if (savedCookieFile) setCookieFile(savedCookieFile);
+            const savedPrefLang = await window.electronAPI.getSetting('preferredLang');
+            if (savedPrefLang !== null && savedPrefLang !== undefined) setPreferredLang(savedPrefLang);
             setSettingsLoaded(true);
         })();
     }, []);
@@ -198,6 +310,22 @@ function App() {
 
     const handleDownload = async () => {
         if (!url) return;
+
+        // If preferredLang is set, try to auto-resolve the track
+        if (preferredLang) {
+            setStatus('Checking preferred audio track...');
+            setFetchingInfo(true);
+            const track = await resolveAudioTrack(url, preferredLang);
+            setFetchingInfo(false);
+            if (track) {
+                await startDownload(track.formatId, track.isAudioOnly, track.langCode);
+                return;
+            }
+            // Not found — download default silently
+            await startDownload();
+            return;
+        }
+
         setFetchingInfo(true);
         setStatus('Analyzing audio tracks...');
         try {
@@ -217,6 +345,39 @@ function App() {
         setFetchingInfo(false);
         await startDownload();
     };
+
+    const resolveAudioTrack = async (targetUrl: string, prefLang: string) => {
+        if (!prefLang) return null;
+        try {
+            const info = await window.electronAPI.fetchVideoInfo(targetUrl);
+            if (!info || !info.audioLangs || info.audioLangs.length === 0) return null;
+            const pref = prefLang.toLowerCase();
+            const matched = info.audioLangs.find(l => {
+                const code = l.code.toLowerCase();
+                return code === pref || code.startsWith(pref + '-') || code.startsWith(pref + '_');
+            });
+            if (matched) {
+                return {
+                    formatId: matched.formatId,
+                    isAudioOnly: matched.isAudioOnly,
+                    langCode: matched.code
+                };
+            }
+        } catch (e) {
+            console.error('Failed to resolve audio track for:', targetUrl, e);
+        }
+        return null;
+    };
+
+    const filteredYouTubeLangs = YOUTUBE_LANGUAGES.filter(lang => {
+        if (!prefLangSearch.trim()) return true;
+        const q = prefLangSearch.toLowerCase().trim();
+        return (
+            lang.code.toLowerCase().includes(q) ||
+            lang.name.toLowerCase().includes(q) ||
+            (lang.nativeName && lang.nativeName.toLowerCase().includes(q))
+        );
+    });
 
     const handleCancel = async () => {
         await window.electronAPI.cancelDownload();
@@ -640,6 +801,85 @@ function App() {
                                 </button>
                             </div>
                         </div>
+
+                        {/* Divider */}
+                        <div style={{ height: 1, background: 'rgba(255,255,255,0.04)' }} />
+
+                        {/* Preferred Audio Language */}
+                        <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-3">
+                                <div style={{
+                                    width: 34, height: 34, borderRadius: 10,
+                                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                                    transition: 'all 0.3s',
+                                    background: preferredLang ? 'rgba(59,130,246,0.1)' : 'rgba(255,255,255,0.03)',
+                                    border: preferredLang ? '1px solid rgba(59,130,246,0.2)' : '1px solid rgba(255,255,255,0.04)',
+                                    boxShadow: preferredLang ? '0 0 12px rgba(59,130,246,0.1)' : 'none',
+                                }}>
+                                    <Languages style={{ width: 15, height: 15, color: preferredLang ? '#60a5fa' : '#475569' }} />
+                                </div>
+                                <div className="flex flex-col">
+                                    <span className="text-xs font-bold" style={{ color: preferredLang ? '#fff' : '#64748b' }}>
+                                        Preferred Audio
+                                    </span>
+                                    <span className="text-[9px] text-slate-500 font-medium">
+                                        Falls back to default if unavailable
+                                    </span>
+                                </div>
+                            </div>
+                            <div className="flex items-center gap-2">
+                                {preferredLang && (
+                                    <button
+                                        onClick={() => {
+                                            setPreferredLang('');
+                                            window.electronAPI.setSetting('preferredLang', '');
+                                        }}
+                                        style={{
+                                            width: 28, height: 28, borderRadius: 7,
+                                            background: 'rgba(239,68,68,0.08)',
+                                            border: '1px solid rgba(239,68,68,0.15)',
+                                            display: 'flex', alignItems: 'center', justifyContent: 'center',
+                                            cursor: 'pointer', transition: 'all 0.2s',
+                                        }}
+                                        onMouseEnter={e => { e.currentTarget.style.background = 'rgba(239,68,68,0.15)'; }}
+                                        onMouseLeave={e => { e.currentTarget.style.background = 'rgba(239,68,68,0.08)'; }}
+                                        title="Reset to default language"
+                                    >
+                                        <X style={{ width: 12, height: 12, color: '#f87171' }} />
+                                    </button>
+                                )}
+                                <button
+                                    onClick={() => {
+                                        setPrefLangSearch('');
+                                        setShowPrefLangModal(true);
+                                    }}
+                                    style={{
+                                        height: 32, padding: '0 12px', borderRadius: 8,
+                                        background: preferredLang ? 'rgba(59,130,246,0.1)' : 'rgba(255,255,255,0.03)',
+                                        border: preferredLang ? '1px solid rgba(59,130,246,0.25)' : '1px solid rgba(255,255,255,0.06)',
+                                        color: preferredLang ? '#60a5fa' : '#94a3b8',
+                                        cursor: 'pointer', fontSize: 11, fontWeight: 700,
+                                        display: 'flex', alignItems: 'center', gap: 6,
+                                        transition: 'all 0.2s', letterSpacing: '0.03em',
+                                    }}
+                                    onMouseEnter={e => { e.currentTarget.style.background = preferredLang ? 'rgba(59,130,246,0.18)' : 'rgba(255,255,255,0.06)'; }}
+                                    onMouseLeave={e => { e.currentTarget.style.background = preferredLang ? 'rgba(59,130,246,0.1)' : 'rgba(255,255,255,0.03)'; }}
+                                >
+                                    {preferredLang ? (
+                                        <>
+                                            {langFlagUrl(preferredLang) && (
+                                                <img src={langFlagUrl(preferredLang)} alt="" style={{ width: 14, height: 10, borderRadius: 1, objectFit: 'cover' }} />
+                                            )}
+                                            <span>
+                                                {YOUTUBE_LANGUAGES.find(l => l.code.toLowerCase() === preferredLang.toLowerCase())?.name || preferredLang.toUpperCase()} ({preferredLang.toUpperCase()})
+                                            </span>
+                                        </>
+                                    ) : (
+                                        <span>Default / Auto</span>
+                                    )}
+                                </button>
+                            </div>
+                        </div>
                     </section>
                 </main>
             </div>
@@ -653,11 +893,16 @@ function App() {
                     <div className="flex justify-between items-end">
                         <div className="flex flex-col gap-1">
                             <div className="flex items-center gap-3">
-                                <span className="text-[9px] font-extrabold text-slate-600 uppercase tracking-widest">Video Language</span>
+                                <span className="text-[9px] font-extrabold text-slate-600 uppercase tracking-widest">Audio Track</span>
                                 {selectedLangCode ? (
                                     <span className="flex items-center gap-1.5">
                                         {langFlagUrl(selectedLangCode) && <img src={langFlagUrl(selectedLangCode)} alt="" style={{ width: 14, height: 10, borderRadius: 1, objectFit: 'cover' }} />}
                                         <span className="text-[9px] font-bold text-slate-400 uppercase">{selectedLangCode}</span>
+                                    </span>
+                                ) : preferredLang ? (
+                                    <span className="flex items-center gap-1.5">
+                                        {langFlagUrl(preferredLang) && <img src={langFlagUrl(preferredLang)} alt="" style={{ width: 14, height: 10, borderRadius: 1, objectFit: 'cover' }} />}
+                                        <span className="text-[9px] font-bold text-blue-400 uppercase">Pref: {preferredLang}</span>
                                     </span>
                                 ) : (
                                     <span className="text-[8px] font-semibold" style={{ color: '#334155' }}>Default</span>
@@ -1084,7 +1329,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
                                 </div>
                                 <div>
                                     <div className="text-sm font-black text-white">DBA Downloader</div>
-                                    <div className="text-[10px] font-bold text-slate-500">Версия 1.0.0</div>
+                                    <div className="text-[10px] font-bold text-slate-500">Версия 1.4.0</div>
                                 </div>
                             </div>
                             <button
@@ -1149,6 +1394,168 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
                             <br />
                             <span className="font-bold">License:</span>{' '}
                             <span className="text-slate-400 font-semibold">Custom</span>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* ── Preferred Language Grid Modal ── */}
+            {showPrefLangModal && (
+                <div 
+                    style={{
+                        position: 'fixed', inset: 0, zIndex: 999,
+                        background: 'rgba(0,0,0,0.7)', backdropFilter: 'blur(12px)',
+                        display: 'flex', alignItems: 'center', justifyContent: 'center',
+                        padding: 24,
+                    }}
+                    onClick={() => setShowPrefLangModal(false)}
+                >
+                    <div 
+                        style={{
+                            maxWidth: 620, width: '100%',
+                            background: 'rgba(15,23,42,0.97)',
+                            border: '1px solid rgba(255,255,255,0.08)',
+                            borderRadius: 20, padding: '28px 24px',
+                            boxShadow: '0 24px 80px rgba(0,0,0,0.6)',
+                            animation: 'fadeSlideIn 0.25s ease',
+                            display: 'flex', flexDirection: 'column',
+                            maxHeight: '85vh',
+                        }}
+                        onClick={e => e.stopPropagation()}
+                    >
+                        {/* Header */}
+                        <div className="flex items-center justify-between" style={{ marginBottom: 14 }}>
+                            <div className="flex items-center gap-3">
+                                <div style={{
+                                    width: 40, height: 40, borderRadius: 12,
+                                    background: 'rgba(59,130,246,0.1)',
+                                    border: '1px solid rgba(59,130,246,0.2)',
+                                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                                }}>
+                                    <Languages style={{ width: 20, height: 20, color: '#60a5fa' }} />
+                                </div>
+                                <div>
+                                    <div className="text-sm font-black text-white">Preferred Audio Language</div>
+                                    <div className="text-[10px] font-bold text-slate-500">
+                                        {filteredYouTubeLangs.length} languages • Falls back to default if unavailable
+                                    </div>
+                                </div>
+                            </div>
+                            <button
+                                onClick={() => setShowPrefLangModal(false)}
+                                title="Close"
+                                style={{
+                                    width: 30, height: 30, borderRadius: 8,
+                                    background: 'rgba(255,255,255,0.05)',
+                                    border: 'none', cursor: 'pointer',
+                                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                                    transition: 'all 0.2s',
+                                    color: '#94a3b8',
+                                }}
+                                onMouseEnter={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.1)'; e.currentTarget.style.color = '#fff'; }}
+                                onMouseLeave={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.05)'; e.currentTarget.style.color = '#94a3b8'; }}
+                            >
+                                <X style={{ width: 15, height: 15 }} />
+                            </button>
+                        </div>
+                        {/* Search Input */}
+                        <div style={{ position: 'relative', marginBottom: 14 }}>
+                            <input
+                                type="text"
+                                placeholder="Search language (e.g. Russian, ru, English, de)..."
+                                value={prefLangSearch}
+                                onChange={(e) => setPrefLangSearch(e.target.value)}
+                                className="input-glass w-full text-xs"
+                                style={{ height: 38, paddingLeft: 34, paddingRight: 32 }}
+                            />
+                            <Search style={{ position: 'absolute', left: 11, top: '50%', transform: 'translateY(-50%)', width: 14, height: 14, color: '#64748b' }} />
+                            {prefLangSearch && (
+                                <button
+                                    onClick={() => setPrefLangSearch('')}
+                                    style={{
+                                        position: 'absolute', right: 8, top: '50%', transform: 'translateY(-50%)',
+                                        background: 'none', border: 'none', color: '#64748b', cursor: 'pointer',
+                                        display: 'flex', alignItems: 'center', justifyContent: 'center', width: 20, height: 20,
+                                    }}
+                                >
+                                    <X style={{ width: 13, height: 13 }} />
+                                </button>
+                            )}
+                        </div>
+                        {/* Grid of language pills */}
+                        <div 
+                            className="flex flex-wrap gap-2 overflow-y-auto pr-1"
+                            style={{ maxHeight: 380, scrollbarWidth: 'thin' }}
+                        >
+                            {/* Default / Auto pill */}
+                            <button
+                                onClick={() => {
+                                    setPreferredLang('');
+                                    window.electronAPI.setSetting('preferredLang', '');
+                                    setShowPrefLangModal(false);
+                                }}
+                                className="lang-pill"
+                                style={{
+                                    background: preferredLang === '' ? 'rgba(59,130,246,0.2)' : 'rgba(255,255,255,0.03)',
+                                    border: preferredLang === '' ? '1px solid rgba(59,130,246,0.4)' : '1px solid rgba(255,255,255,0.06)',
+                                    color: preferredLang === '' ? '#60a5fa' : '#94a3b8',
+                                    fontWeight: preferredLang === '' ? 800 : 600,
+                                }}
+                            >
+                                <Globe style={{ width: 14, height: 14, color: preferredLang === '' ? '#60a5fa' : '#64748b' }} />
+                                <span>Default / Auto</span>
+                                {preferredLang === '' && <Check style={{ width: 12, height: 12, color: '#60a5fa' }} />}
+                            </button>
+                            {/* YouTube Languages */}
+                            {filteredYouTubeLangs.map((lang) => {
+                                const isSelected = preferredLang.toLowerCase() === lang.code.toLowerCase();
+                                return (
+                                    <button
+                                        key={lang.code}
+                                        onClick={() => {
+                                            setPreferredLang(lang.code);
+                                            window.electronAPI.setSetting('preferredLang', lang.code);
+                                            setShowPrefLangModal(false);
+                                        }}
+                                        className="lang-pill"
+                                        style={{
+                                            background: isSelected ? 'rgba(59,130,246,0.2)' : 'rgba(255,255,255,0.03)',
+                                            border: isSelected ? '1px solid rgba(59,130,246,0.4)' : '1px solid rgba(255,255,255,0.06)',
+                                            color: isSelected ? '#60a5fa' : '#94a3b8',
+                                            fontWeight: isSelected ? 800 : 600,
+                                        }}
+                                    >
+                                        {langFlagUrl(lang.code) && (
+                                            <img src={langFlagUrl(lang.code)} alt="" style={{ width: 18, height: 13, borderRadius: 2, objectFit: 'cover' }} />
+                                        )}
+                                        <span>{lang.name}</span>
+                                        <span style={{ fontSize: 9, opacity: 0.6, textTransform: 'uppercase' }}>
+                                            {lang.code}
+                                        </span>
+                                        {isSelected && <Check style={{ width: 12, height: 12, color: '#60a5fa' }} />}
+                                    </button>
+                                );
+                            })}
+                        </div>
+                        {/* Bottom Close Button */}
+                        <div style={{ marginTop: 18 }}>
+                            <button
+                                onClick={() => setShowPrefLangModal(false)}
+                                style={{
+                                    width: '100%', height: 42, borderRadius: 12,
+                                    background: 'rgba(255,255,255,0.04)',
+                                    border: '1px solid rgba(255,255,255,0.07)',
+                                    color: '#94a3b8', cursor: 'pointer',
+                                    fontSize: 11, fontWeight: 700, letterSpacing: '0.08em',
+                                    transition: 'all 0.2s',
+                                    display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
+                                }}
+                                onMouseEnter={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.08)'; e.currentTarget.style.color = '#fff'; }}
+                                onMouseLeave={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.04)'; e.currentTarget.style.color = '#94a3b8'; }}
+                            >
+                                <X style={{ width: 14, height: 14 }} />
+                                <span>CLOSE</span>
+                            </button>
                         </div>
                     </div>
                 </div>

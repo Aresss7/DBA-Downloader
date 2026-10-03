@@ -6,10 +6,13 @@ A premium desktop video downloader built with Electron, React, and yt-dlp.
 
 - 🎬 **Video & Audio** — Download in MP4 or extract audio as MP3
 - 📐 **Quality Selection** — Choose from 1080p FHD down to 144p
+- 🌐 **Preferred Audio Language** — Select your preferred audio track language (supporting 97+ languages) with smart fallback
+- 🍪 **Cookies Import** — Import `.txt` cookies to bypass bot verification and geo-restrictions
 - ✂️ **Clip Segments** — Trim videos by specifying start and end time
 - ❌ **Cancel Downloads** — Stop any download mid-progress
 - 📂 **Smart Storage** — Remembers your chosen download folder
 - 🔄 **Engine Sync** — One-click yt-dlp update
+- ⚡ **Zero Setup** — Automatically downloads and configures yt-dlp and ffmpeg binaries on first launch
 
 ## 📦 Installation
 
@@ -45,7 +48,7 @@ npm run dev
 npm run build
 ```
 
-The installer will appear in `release/1.0.0/`.
+The installer will appear in `release/<version>/`.
 
 ## ⚙️ Tech Stack
 
