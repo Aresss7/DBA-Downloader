@@ -35,9 +35,45 @@ export class YtDlpManager {
     const entry = `[${time}] ${msg}\n`;
     console.log(entry.trim());
     try {
+      if (fs.existsSync(this.logPath)) {
+        const stats = fs.statSync(this.logPath);
+        if (stats.size > 5 * 1024 * 1024) {
+          const oldLog = path.join(this.binPath, 'debug.log.old');
+          if (fs.existsSync(oldLog)) fs.unlinkSync(oldLog);
+          fs.renameSync(this.logPath, oldLog);
+        }
+      }
       fs.appendFileSync(this.logPath, entry);
     } catch (e) {
       // ignore
+    }
+  }
+
+  getLogPath(): string {
+    return this.logPath;
+  }
+
+  getLogs(tailLines: number = 300): string {
+    try {
+      if (!fs.existsSync(this.logPath)) return '';
+      const content = fs.readFileSync(this.logPath, 'utf-8');
+      const lines = content.split('\n');
+      if (lines.length <= tailLines) return content;
+      return lines.slice(-tailLines).join('\n');
+    } catch (e: any) {
+      return `Failed to read logs: ${e.message}`;
+    }
+  }
+
+  clearLogs(): boolean {
+    try {
+      if (fs.existsSync(this.logPath)) {
+        fs.writeFileSync(this.logPath, '');
+      }
+      this.log('Logs cleared by user');
+      return true;
+    } catch {
+      return false;
     }
   }
 
@@ -322,6 +358,8 @@ export class YtDlpManager {
       '--newline',
       '--progress',
       '--progress-template', '%(progress._percent_str)s',
+      '-N', '4',
+      '--postprocessor-args', 'Merger+ffmpeg:-threads 0',
       url
     ];
     if (options.cookieFile && fs.existsSync(options.cookieFile)) {
@@ -333,6 +371,7 @@ export class YtDlpManager {
         args.push('-f', options.audioFormatId);
       }
       args.push('-x', '--audio-format', 'mp3');
+      args.push('--postprocessor-args', 'ExtractAudio+ffmpeg:-threads 0');
     } else if (options.quality) {
       const q = options.quality.replace('p', '');
       const fmtId = options.audioFormatId;
@@ -342,7 +381,6 @@ export class YtDlpManager {
         // Audio-only format (e.g. English original): merge with quality-constrained video
         args.push('-f', `bestvideo[height<=${q}]+${fmtId}/best[height<=${q}]/best`);
         args.push('--merge-output-format', 'mp4');
-        args.push('--ppa', 'Merger+ffmpeg:-c:a aac -b:a 192k');
       } else if (lang) {
         // Combined HLS format (e.g. dubbed audio): download single format with quality+language
         // YouTube provides dubbed audio only as combined HLS (91-96 = 144p-1080p)
@@ -350,20 +388,19 @@ export class YtDlpManager {
         args.push('-f', `best[height<=${q}][language*=${lang}]/best[height<=${q}]/best`);
         args.push('--remux-video', 'mp4');
       } else {
+        // Default: prefer m4a audio stream to do instantaneous stream copy (-c copy) into mp4 container
         args.push('-f', `bestvideo[height<=${q}]+bestaudio[ext=m4a]/bestvideo[height<=${q}]+bestaudio/best[height<=${q}]/best`);
         args.push('--merge-output-format', 'mp4');
-        args.push('--ppa', 'Merger+ffmpeg:-c:a aac -b:a 192k');
       }
     }
 
     this.log(`Download args: ${args.join(' ')}`);
 
     if (options.start || options.end) {
-      const start = options.start || '00:00:00';
-      args.push('--downloader', 'ffmpeg');
-      args.push('--downloader-args', `ffmpeg_i:-ss ${start}`);
-      if (options.end) {
-        args.push('--download-sections', `*${start}-${options.end}`);
+      if (options.start) {
+        args.push('--download-sections', `*${options.start}-${options.end || 'inf'}`);
+      } else if (options.end) {
+        args.push('--download-sections', `*00:00:00-${options.end}`);
       }
     }
 

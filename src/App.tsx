@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react'
-import { Download, Monitor, Music, ChevronDown, Check, RefreshCw, Folder, Link as LinkIcon, Scissors, FolderOpen, X, Shield, Info, Crown, FileText, Languages, Search, Globe } from 'lucide-react'
+import { Download, Monitor, Music, ChevronDown, Check, RefreshCw, Folder, Link as LinkIcon, Scissors, FolderOpen, X, Shield, Info, Crown, FileText, Languages, Search, Globe, Terminal, Copy, Trash2, ExternalLink } from 'lucide-react'
 import TimeInput from './components/TimeInput'
 
 declare global {
@@ -15,6 +15,9 @@ declare global {
             setSetting: (key: string, value: any) => Promise<boolean>
             openExternal: (url: string) => Promise<boolean>
             selectCookieFile: () => Promise<string | null>
+            getLogs: () => Promise<string>
+            clearLogs: () => Promise<boolean>
+            openLogsFolder: () => Promise<boolean>
             onDownloadProgress: (callback: (progress: string) => void) => void
             onInitProgress: (callback: (data: { step: number; totalSteps: number; label: string; percent: number; done?: boolean; error?: boolean }) => void) => void
         }
@@ -200,6 +203,10 @@ function App() {
     const [preferredLang, setPreferredLang] = useState('')
     const [showPrefLangModal, setShowPrefLangModal] = useState(false)
     const [prefLangSearch, setPrefLangSearch] = useState('')
+    const [showLogsModal, setShowLogsModal] = useState(false)
+    const [logsContent, setLogsContent] = useState('')
+    const [logsLoading, setLogsLoading] = useState(false)
+    const [logsCopied, setLogsCopied] = useState(false)
 
     // Close dropdown on outside click
     useEffect(() => {
@@ -504,6 +511,32 @@ function App() {
                     <span className="text-[11px] font-black tracking-[0.3em] text-slate-500 uppercase">DBA Downloader</span>
                 </div>
                 <div className="flex items-center gap-2 ml-auto" style={{ WebkitAppRegion: 'no-drag' } as any}>
+                    <button
+                        onClick={async () => {
+                            setLogsLoading(true);
+                            setShowLogsModal(true);
+                            try {
+                                const logs = await window.electronAPI.getLogs();
+                                setLogsContent(logs || 'Логи пусты');
+                            } catch {
+                                setLogsContent('Ошибка при получении логов');
+                            } finally {
+                                setLogsLoading(false);
+                            }
+                        }}
+                        title="Журнал логов"
+                        style={{
+                            width: 30, height: 30, borderRadius: 8,
+                            background: 'rgba(255,255,255,0.03)',
+                            border: '1px solid rgba(255,255,255,0.05)',
+                            display: 'flex', alignItems: 'center', justifyContent: 'center',
+                            cursor: 'pointer', transition: 'all 0.2s',
+                        }}
+                        onMouseEnter={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.08)'; }}
+                        onMouseLeave={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.03)'; }}
+                    >
+                        <Terminal style={{ width: 13, height: 13, color: '#64748b' }} />
+                    </button>
                     <button
                         onClick={() => setShowAbout(true)}
                         title="О программе"
@@ -1556,6 +1589,187 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
                                 <X style={{ width: 14, height: 14 }} />
                                 <span>CLOSE</span>
                             </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* ── Logs Modal ── */}
+            {showLogsModal && (
+                <div
+                    style={{
+                        position: 'fixed', inset: 0, zIndex: 999,
+                        background: 'rgba(0,0,0,0.75)', backdropFilter: 'blur(12px)',
+                        display: 'flex', alignItems: 'center', justifyContent: 'center',
+                        padding: 24,
+                    }}
+                    onClick={() => setShowLogsModal(false)}
+                >
+                    <div
+                        style={{
+                            maxWidth: 720, width: '100%',
+                            background: 'rgba(15,23,42,0.98)',
+                            border: '1px solid rgba(255,255,255,0.08)',
+                            borderRadius: 20, padding: '24px',
+                            boxShadow: '0 24px 80px rgba(0,0,0,0.7)',
+                            animation: 'fadeSlideIn 0.25s ease',
+                            display: 'flex', flexDirection: 'column',
+                            maxHeight: '85vh',
+                        }}
+                        onClick={e => e.stopPropagation()}
+                    >
+                        {/* Header */}
+                        <div className="flex items-center justify-between" style={{ marginBottom: 16 }}>
+                            <div className="flex items-center gap-3">
+                                <div style={{
+                                    width: 38, height: 38, borderRadius: 12,
+                                    background: 'rgba(59,130,246,0.1)',
+                                    border: '1px solid rgba(59,130,246,0.2)',
+                                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                                }}>
+                                    <Terminal style={{ width: 18, height: 18, color: '#60a5fa' }} />
+                                </div>
+                                <div>
+                                    <div className="text-sm font-black text-white">Журнал работы и ошибок</div>
+                                    <div className="text-[10px] font-bold text-slate-500">
+                                        Системные логи yt-dlp и ffmpeg
+                                    </div>
+                                </div>
+                            </div>
+                            <div className="flex items-center gap-2">
+                                <button
+                                    onClick={async () => {
+                                        setLogsLoading(true);
+                                        try {
+                                            const logs = await window.electronAPI.getLogs();
+                                            setLogsContent(logs || 'Логи пусты');
+                                        } finally {
+                                            setLogsLoading(false);
+                                        }
+                                    }}
+                                    title="Обновить"
+                                    style={{
+                                        height: 30, padding: '0 10px', borderRadius: 8,
+                                        background: 'rgba(255,255,255,0.04)',
+                                        border: '1px solid rgba(255,255,255,0.08)',
+                                        color: '#94a3b8', cursor: 'pointer', fontSize: 11,
+                                        display: 'flex', alignItems: 'center', gap: 6,
+                                    }}
+                                >
+                                    <RefreshCw style={{ width: 12, height: 12 }} className={logsLoading ? 'animate-spin' : ''} />
+                                    <span>Обновить</span>
+                                </button>
+                                <button
+                                    onClick={() => setShowLogsModal(false)}
+                                    title="Закрыть"
+                                    style={{
+                                        width: 30, height: 30, borderRadius: 8,
+                                        background: 'rgba(255,255,255,0.05)',
+                                        border: 'none', cursor: 'pointer',
+                                        display: 'flex', alignItems: 'center', justifyContent: 'center',
+                                        color: '#94a3b8',
+                                    }}
+                                >
+                                    <X style={{ width: 15, height: 15 }} />
+                                </button>
+                            </div>
+                        </div>
+
+                        {/* Logs container */}
+                        <div
+                            style={{
+                                flex: 1,
+                                minHeight: 280,
+                                maxHeight: 420,
+                                overflowY: 'auto',
+                                background: 'rgba(2,6,23,0.8)',
+                                border: '1px solid rgba(255,255,255,0.06)',
+                                borderRadius: 12,
+                                padding: '12px 14px',
+                                fontFamily: 'Consolas, "Fira Code", monospace',
+                                fontSize: 11,
+                                lineHeight: 1.6,
+                                color: '#cbd5e1',
+                                whiteSpace: 'pre-wrap',
+                                wordBreak: 'break-all',
+                                userSelect: 'text',
+                            }}
+                        >
+                            {logsLoading ? 'Загрузка...' : logsContent}
+                        </div>
+
+                        {/* Footer actions */}
+                        <div className="flex items-center justify-between" style={{ marginTop: 16 }}>
+                            <div className="flex items-center gap-2">
+                                <button
+                                    onClick={async () => {
+                                        if (!logsContent) return;
+                                        await navigator.clipboard.writeText(logsContent);
+                                        setLogsCopied(true);
+                                        setTimeout(() => setLogsCopied(false), 2000);
+                                    }}
+                                    style={{
+                                        height: 34, padding: '0 12px', borderRadius: 10,
+                                        background: 'rgba(255,255,255,0.04)',
+                                        border: '1px solid rgba(255,255,255,0.08)',
+                                        color: logsCopied ? '#4ade80' : '#94a3b8',
+                                        cursor: 'pointer', fontSize: 11, fontWeight: 700,
+                                        display: 'flex', alignItems: 'center', gap: 6,
+                                        transition: 'all 0.2s',
+                                    }}
+                                >
+                                    {logsCopied ? <Check style={{ width: 13, height: 13 }} /> : <Copy style={{ width: 13, height: 13 }} />}
+                                    <span>{logsCopied ? 'Скопировано' : 'Копировать'}</span>
+                                </button>
+                                <button
+                                    onClick={async () => {
+                                        await window.electronAPI.clearLogs();
+                                        setLogsContent('Логи очищены');
+                                    }}
+                                    style={{
+                                        height: 34, padding: '0 12px', borderRadius: 10,
+                                        background: 'rgba(239,68,68,0.06)',
+                                        border: '1px solid rgba(239,68,68,0.15)',
+                                        color: '#f87171',
+                                        cursor: 'pointer', fontSize: 11, fontWeight: 700,
+                                        display: 'flex', alignItems: 'center', gap: 6,
+                                        transition: 'all 0.2s',
+                                    }}
+                                >
+                                    <Trash2 style={{ width: 13, height: 13 }} />
+                                    <span>Очистить</span>
+                                </button>
+                            </div>
+                            <div className="flex items-center gap-2">
+                                <button
+                                    onClick={() => window.electronAPI.openLogsFolder()}
+                                    style={{
+                                        height: 34, padding: '0 12px', borderRadius: 10,
+                                        background: 'rgba(255,255,255,0.04)',
+                                        border: '1px solid rgba(255,255,255,0.08)',
+                                        color: '#94a3b8', cursor: 'pointer',
+                                        fontSize: 11, fontWeight: 700,
+                                        display: 'flex', alignItems: 'center', gap: 6,
+                                        transition: 'all 0.2s',
+                                    }}
+                                >
+                                    <ExternalLink style={{ width: 13, height: 13 }} />
+                                    <span>Открыть папку с файлом</span>
+                                </button>
+                                <button
+                                    onClick={() => setShowLogsModal(false)}
+                                    style={{
+                                        height: 34, padding: '0 16px', borderRadius: 10,
+                                        background: 'rgba(59,130,246,0.15)',
+                                        border: '1px solid rgba(59,130,246,0.3)',
+                                        color: '#60a5fa', cursor: 'pointer',
+                                        fontSize: 11, fontWeight: 700,
+                                        transition: 'all 0.2s',
+                                    }}
+                                >
+                                    Закрыть
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </div>

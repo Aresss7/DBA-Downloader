@@ -11,6 +11,9 @@ contextBridge.exposeInMainWorld('electronAPI', {
   setSetting: (key: string, value: any) => ipcRenderer.invoke('set-setting', key, value),
   openExternal: (url: string) => ipcRenderer.invoke('open-external', url),
   selectCookieFile: () => ipcRenderer.invoke('select-cookie-file'),
+  getLogs: () => ipcRenderer.invoke('get-logs'),
+  clearLogs: () => ipcRenderer.invoke('clear-logs'),
+  openLogsFolder: () => ipcRenderer.invoke('open-logs-folder'),
   onDownloadProgress: (callback: (progress: string) => void) => {
     ipcRenderer.on('download-progress', (_event, value: string) => callback(value))
   },

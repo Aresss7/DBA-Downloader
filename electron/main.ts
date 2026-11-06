@@ -172,3 +172,21 @@ ipcMain.handle('open-external', async (_event, url: string) => {
   await shell.openExternal(url)
   return true
 })
+
+ipcMain.handle('get-logs', async () => {
+  return ytDlpManager.getLogs(400)
+})
+
+ipcMain.handle('clear-logs', async () => {
+  return ytDlpManager.clearLogs()
+})
+
+ipcMain.handle('open-logs-folder', async () => {
+  const logFile = ytDlpManager.getLogPath()
+  if (fs.existsSync(logFile)) {
+    shell.showItemInFolder(logFile)
+  } else {
+    shell.openPath(path.dirname(logFile))
+  }
+  return true
+})
