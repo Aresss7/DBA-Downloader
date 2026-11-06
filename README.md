@@ -13,6 +13,8 @@ A premium desktop video downloader built with Electron, React, and yt-dlp.
 - 📂 **Smart Storage** — Remembers your chosen download folder
 - 🔄 **Engine Sync** — One-click yt-dlp update
 - ⚡ **Zero Setup** — Automatically downloads and configures yt-dlp and ffmpeg binaries on first launch
+- 📜 **Logs Viewer** — Built-in diagnostics and error logging modal for quick troubleshooting
+- 🚀 **Blazing Fast Merging** — Stream-copy muxing with multithreaded fragment downloading
 
 ## 📦 Installation
 
